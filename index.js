@@ -11,11 +11,14 @@ var txn_Id;
 app = express();
 app.use(bodyParser.json());
 
-async function app(){
+async function start(){
     confirmOTP = {
         method: 'post',
         url: 'https://cdn-api.co-vin.in/api/v2/auth/public/confirmOTP',
-        
+        data:{
+            otp: String,
+            txnId: String
+        }
     }
     
     generateOTP = {
@@ -26,22 +29,30 @@ async function app(){
         }
     }
     
-    const response = await axios(generateOTP);
-    console.log(response);
+    await axios(generateOTP)
+    .catch((error)=>{
+        console.log(error.response.data);
+        console.log(error.response.status);
+    })
+    .then((res)=>{
+        console.log(res.data);
+        txn_Id = res.data.txnId;
+    });
+    //console.log(response);
     confirmOTP.data.otp = sha256("112254");
     confirmOTP.data.txnId = txn_Id;
     
-    // await axios(confirmOTP)
-    // .catch((error=>{
-    //     console.log(error.response.data);
-    //     console.log(error.response.status);
+    await axios(confirmOTP)
+    .catch((error)=>{
+        console.log(error.response.data);
+        console.log(error.response.status);
     
-    // }))
-    // .then((res)=>{
-    //     console.log(res.data);
-    // })
+    })
+    .then((res)=>{
+        console.log(res.data);
+    });
 }
-app();
+start();
 
 app.listen(3000, (req, res)=>{
     console.log("server started");
